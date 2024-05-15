@@ -1,0 +1,98 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.elnar.crudapp</groupId>
+  <artifactId>module_2.4_</artifactId>
+  <packaging>war</packaging>
+  <version>1.0.0</version>
+  <name>module_2.4_ Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <lombok.version>1.18.30</lombok.version>
+    <postgres.version>42.7.3</postgres.version>
+    <hibernate.core.version>6.5.1.Final</hibernate.core.version>
+    <javax.servlet.api.version>4.0.1</javax.servlet.api.version> <!-- обновлено -->
+    <flyway-core.version>10.12.0</flyway-core.version>
+    <flyway-database-postgresql.version>10.12.0</flyway-database-postgresql.version>
+    <junit-jupiter-api.version>5.10.1</junit-jupiter-api.version>
+    <mockito-core.version>5.9.0</mockito-core.version>
+    <mockito-junit-jupiter.version>5.5.0</mockito-junit-jupiter.version>
+
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgres.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>${hibernate.core.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>${javax.servlet.api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <version>${flyway-core.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+      <version>${flyway-database-postgresql.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit-jupiter-api.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito-core.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>${mockito-junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <finalName>root</finalName>
+    <plugins>
+      <!-- ваши плагины, если они есть -->
+    </plugins>
+  </build>
+
+</project>
