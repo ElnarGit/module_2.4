@@ -4,15 +4,16 @@ import org.elnar.crudapp.entity.User;
 import org.elnar.crudapp.exception.HibernateRepositoryException;
 import org.elnar.crudapp.exception.UserNotFoundException;
 import org.elnar.crudapp.repository.UserRepository;
-import org.elnar.crudapp.util.HibernateUtil;
 import org.hibernate.Session;
 
 import java.util.List;
 
+import static org.elnar.crudapp.util.HibernateUtil.openSession;
+
 public class UserRepositoryImpl implements UserRepository {
 	
 	public User getById(Integer id) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			User user = session.createQuery(
 					"FROM User u " +
 							"left join fetch u.events " +
@@ -31,7 +32,7 @@ public class UserRepositoryImpl implements UserRepository {
 	}
 	
 	public List<User> getAll() {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			
 			return session.createQuery("FROM User", User.class).getResultList();
 			
@@ -41,7 +42,7 @@ public class UserRepositoryImpl implements UserRepository {
 	}
 	
 	public User save(User user) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			session.beginTransaction();
 			
 			session.persist(user);
@@ -55,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
 	}
 	
 	public User update(User user) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			session.beginTransaction();
 			
 			session.merge(user);
@@ -69,7 +70,7 @@ public class UserRepositoryImpl implements UserRepository {
 	}
 	
 	public void deleteById(Integer id) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			session.beginTransaction();
 			
 			User user = getById(id);

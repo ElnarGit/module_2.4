@@ -4,15 +4,16 @@ import org.elnar.crudapp.entity.File;
 import org.elnar.crudapp.exception.FileNotFoundException;
 import org.elnar.crudapp.exception.HibernateRepositoryException;
 import org.elnar.crudapp.repository.FileRepository;
-import org.elnar.crudapp.util.HibernateUtil;
 import org.hibernate.Session;
 
 import java.util.List;
 
+import static org.elnar.crudapp.util.HibernateUtil.openSession;
+
 public class FileRepositoryImpl implements FileRepository {
 	
 	public File getById(Integer id) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			File file= session.get(File.class, id);
 			
 			if(file == null){
@@ -26,7 +27,7 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 	
 	public List<File> getAll() {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			
 			return session.createQuery("FROM File", File.class).getResultList();
 		}catch (HibernateRepositoryException e) {
@@ -35,7 +36,7 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 	
 	public File save(File file) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			session.beginTransaction();
 			
 			session.persist(file);
@@ -49,7 +50,7 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 	
 	public File update(File file) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			session.beginTransaction();
 			
 			session.merge(file);
@@ -63,7 +64,7 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 	
 	public void deleteById(Integer id) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			session.beginTransaction();
 			
 			File file = getById(id);

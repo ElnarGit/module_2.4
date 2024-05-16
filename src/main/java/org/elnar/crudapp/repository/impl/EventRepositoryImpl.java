@@ -4,15 +4,16 @@ import org.elnar.crudapp.entity.Event;
 import org.elnar.crudapp.exception.EventNotFoundException;
 import org.elnar.crudapp.exception.HibernateRepositoryException;
 import org.elnar.crudapp.repository.EventRepository;
-import org.elnar.crudapp.util.HibernateUtil;
 import org.hibernate.Session;
 
 import java.util.List;
 
+import static org.elnar.crudapp.util.HibernateUtil.openSession;
+
 public class EventRepositoryImpl implements EventRepository {
 	
 	public Event getById(Integer id) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			Event event = session.createQuery(
 					"FROM Event e " +
 							"left join fetch e.user " +
@@ -32,7 +33,7 @@ public class EventRepositoryImpl implements EventRepository {
 	}
 	
 	public List<Event> getAll() {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			
 			return session.createQuery("FROM Event ", Event.class).getResultList();
 			
@@ -42,7 +43,7 @@ public class EventRepositoryImpl implements EventRepository {
 	}
 	
 	public Event save(Event event) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			session.beginTransaction();
 			
 			session.persist(event);
@@ -56,7 +57,7 @@ public class EventRepositoryImpl implements EventRepository {
 	}
 	
 	public Event update(Event event) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			session.beginTransaction();
 			
 			session.merge(event);
@@ -70,7 +71,7 @@ public class EventRepositoryImpl implements EventRepository {
 	}
 	
 	public void deleteById(Integer id) {
-		try(Session session = HibernateUtil.openSession()){
+		try(Session session = openSession()){
 			session.beginTransaction();
 			
 			Event event = getById(id);

@@ -91,8 +91,9 @@
   <build>
     <finalName>root</finalName>
     <plugins>
-      <!-- ваши плагины, если они есть -->
+
     </plugins>
+
   </build>
 
 </project>

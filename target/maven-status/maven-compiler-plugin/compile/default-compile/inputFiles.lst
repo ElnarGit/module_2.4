@@ -5,14 +5,15 @@
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/entity/User.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/entity/Event.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/exception/EventNotFoundException.java
+/home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/converter/UserConverter.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/service/UserService.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/service/FileService.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/controller/UserController.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/service/impl/FileServiceImpl.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/exception/FileNotFoundException.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/repository/impl/EventRepositoryImpl.java
-/home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/servlet/UserServlet2.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/servlet/UserServlet.java
+/home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/dto/UserDTO.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/DatabaseMigrator.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/repository/UserRepository.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/service/EventService.java
@@ -22,8 +23,6 @@
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/repository/GenericRepository.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/exception/UserNotFoundException.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/service/impl/EventServiceImpl.java
-/home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/servlet/UserServlet4.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/util/HibernateUtil.java
-/home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/servlet/UserServlet3.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/service/impl/UserServiceImpl.java
 /home/elnar_01/Рабочий стол/Евгений Сулейманов/module_2.4_/src/main/java/org/elnar/crudapp/exception/NotFoundException.java
