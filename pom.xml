@@ -13,12 +13,12 @@
     <lombok.version>1.18.30</lombok.version>
     <postgres.version>42.7.3</postgres.version>
     <hibernate.core.version>6.5.1.Final</hibernate.core.version>
-    <javax.servlet.api.version>4.0.1</javax.servlet.api.version> <!-- обновлено -->
-    <flyway-core.version>10.12.0</flyway-core.version>
-    <flyway-database-postgresql.version>10.12.0</flyway-database-postgresql.version>
+    <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
+    <flyway.version>10.13.0</flyway.version>
     <junit-jupiter-api.version>5.10.1</junit-jupiter-api.version>
     <mockito-core.version>5.9.0</mockito-core.version>
     <mockito-junit-jupiter.version>5.5.0</mockito-junit-jupiter.version>
+    <jackson.version>2.17.1</jackson.version>
 
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
@@ -55,13 +55,13 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
-      <version>${flyway-core.version}</version>
+      <version>${flyway.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-postgresql</artifactId>
-      <version>${flyway-database-postgresql.version}</version>
+      <version>${flyway.version}</version>
       <scope>runtime</scope>
     </dependency>
 
@@ -84,6 +84,24 @@
       <artifactId>mockito-junit-jupiter</artifactId>
       <version>${mockito-junit-jupiter.version}</version>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
 
   </dependencies>

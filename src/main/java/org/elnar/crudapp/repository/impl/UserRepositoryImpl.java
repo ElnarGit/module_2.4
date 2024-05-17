@@ -4,6 +4,7 @@ import org.elnar.crudapp.entity.User;
 import org.elnar.crudapp.exception.HibernateRepositoryException;
 import org.elnar.crudapp.exception.UserNotFoundException;
 import org.elnar.crudapp.repository.UserRepository;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
 			}
 			
 			return user;
-		}catch (HibernateRepositoryException e){
+		}catch (HibernateException e){
 			throw new HibernateRepositoryException("Ошибка при получении пользователя по идентификатору", e);
 		}
 	}
@@ -36,7 +37,7 @@ public class UserRepositoryImpl implements UserRepository {
 			
 			return session.createQuery("FROM User", User.class).getResultList();
 			
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при получении всех пользователей", e);
 		}
 	}
@@ -50,7 +51,7 @@ public class UserRepositoryImpl implements UserRepository {
 			session.getTransaction().commit();
 			
 			return user;
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при сохранении пользователя", e);
 		}
 	}
@@ -64,7 +65,7 @@ public class UserRepositoryImpl implements UserRepository {
 			session.getTransaction().commit();
 			
 			return user;
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при обновление пользователя", e);
 		}
 	}
@@ -82,7 +83,7 @@ public class UserRepositoryImpl implements UserRepository {
 			session.remove(user);
 			
 			session.getTransaction().commit();
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при удаление пользователя", e);
 		}
 	}

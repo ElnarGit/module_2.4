@@ -4,6 +4,7 @@ import org.elnar.crudapp.entity.Event;
 import org.elnar.crudapp.exception.EventNotFoundException;
 import org.elnar.crudapp.exception.HibernateRepositoryException;
 import org.elnar.crudapp.repository.EventRepository;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public class EventRepositoryImpl implements EventRepository {
 			}
 			
 			return event;
-		}catch (HibernateRepositoryException e){
+		}catch (HibernateException e){
 			throw new HibernateRepositoryException("Ошибка при получении события по идентификатору", e);
 		}
 	}
@@ -37,7 +38,7 @@ public class EventRepositoryImpl implements EventRepository {
 			
 			return session.createQuery("FROM Event ", Event.class).getResultList();
 			
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при получении всех событий", e);
 		}
 	}
@@ -51,7 +52,7 @@ public class EventRepositoryImpl implements EventRepository {
 			session.getTransaction().commit();
 			
 			return event;
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при сохранении события", e);
 		}
 	}
@@ -65,7 +66,7 @@ public class EventRepositoryImpl implements EventRepository {
 			session.getTransaction().commit();
 			
 			return event;
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при обновление события", e);
 		}
 	}
@@ -83,7 +84,7 @@ public class EventRepositoryImpl implements EventRepository {
 			session.remove(event);
 			
 			session.getTransaction().commit();
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при удаление события", e);
 		}
 	}

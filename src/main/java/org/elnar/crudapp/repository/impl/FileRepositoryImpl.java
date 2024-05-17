@@ -4,6 +4,7 @@ import org.elnar.crudapp.entity.File;
 import org.elnar.crudapp.exception.FileNotFoundException;
 import org.elnar.crudapp.exception.HibernateRepositoryException;
 import org.elnar.crudapp.repository.FileRepository;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class FileRepositoryImpl implements FileRepository {
 			}
 			
 			return file;
-		}catch (HibernateRepositoryException e){
+		}catch (HibernateException e){
 			throw new HibernateRepositoryException("Ошибка при получении файла по идентификатору", e);
 		}
 	}
@@ -30,7 +31,7 @@ public class FileRepositoryImpl implements FileRepository {
 		try(Session session = openSession()){
 			
 			return session.createQuery("FROM File", File.class).getResultList();
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при получении всех файлов", e);
 		}
 	}
@@ -44,7 +45,7 @@ public class FileRepositoryImpl implements FileRepository {
 			session.getTransaction().commit();
 			
 			return file;
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при сохранении файла", e);
 		}
 	}
@@ -58,7 +59,7 @@ public class FileRepositoryImpl implements FileRepository {
 			session.getTransaction().commit();
 			
 			return file;
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при обновление файла", e);
 		}
 	}
@@ -76,7 +77,7 @@ public class FileRepositoryImpl implements FileRepository {
 			session.remove(file);
 			
 			session.getTransaction().commit();
-		}catch (HibernateRepositoryException e) {
+		}catch (HibernateException e) {
 			throw new HibernateRepositoryException("Ошибка при удаление файла", e);
 		}
 	}
