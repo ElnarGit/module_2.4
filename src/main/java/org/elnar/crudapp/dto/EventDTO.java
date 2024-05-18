@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventDTO {
-	private Integer id;
-	private UserDTO userDTO;
-	private FileDTO fileDTO;
+  private Integer id;
+  private UserDTO userDTO;
+  private FileDTO fileDTO;
 }

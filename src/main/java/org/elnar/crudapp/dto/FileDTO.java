@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileDTO {
-	private Integer id;
-	private String name;
-	private String filePath;
+  private Integer id;
+  private String name;
+  private String filePath;
 }
