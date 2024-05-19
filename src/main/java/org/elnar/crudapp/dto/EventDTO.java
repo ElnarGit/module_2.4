@@ -1,14 +1,14 @@
 package org.elnar.crudapp.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.validation.constraints.NotNull;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class EventDTO {
-  private Integer id;
-  private UserDTO userDTO;
-  private FileDTO fileDTO;
-}
+
+public record EventDTO (
+   Integer id,
+  
+   @NotNull(message = "Пользователь не может быть пустым")
+   UserDTO userDTO,
+  
+   @NotNull(message = "Файл не может быть пустым")
+   FileDTO fileDTO
+){}
