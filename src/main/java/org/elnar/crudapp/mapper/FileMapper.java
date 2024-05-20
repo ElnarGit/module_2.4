@@ -7,9 +7,9 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface FileMapper {
-	FileMapper INSTANCE = Mappers.getMapper(FileMapper.class);
-	
-	FileDTO fileToFileDTO(File file);
-	
-	File fileDTOToFile(FileDTO fileDTO);
+  FileMapper INSTANCE = Mappers.getMapper(FileMapper.class);
+
+  FileDTO fileToFileDTO(File file);
+
+  File fileDTOToFile(FileDTO fileDTO);
 }

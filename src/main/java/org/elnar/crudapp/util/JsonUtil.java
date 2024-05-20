@@ -1,11 +1,10 @@
 package org.elnar.crudapp.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.experimental.UtilityClass;
-
+import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public final class JsonUtil {

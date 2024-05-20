@@ -1,23 +1,24 @@
 package org.elnar.crudapp.servlet;
 
+import static org.elnar.crudapp.util.JsonUtil.writeJson;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.elnar.crudapp.controller.FileController;
 import org.elnar.crudapp.dto.FileDTO;
 import org.elnar.crudapp.entity.File;
+import org.elnar.crudapp.exception.FileNotFoundException;
 import org.elnar.crudapp.mapper.FileMapper;
 import org.elnar.crudapp.repository.FileRepository;
 import org.elnar.crudapp.repository.impl.FileRepositoryImpl;
 import org.elnar.crudapp.service.FileService;
 import org.elnar.crudapp.service.impl.FileServiceImpl;
-
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
-
-import static org.elnar.crudapp.util.JsonUtil.readJson;
-import static org.elnar.crudapp.util.JsonUtil.writeJson;
+import org.elnar.crudapp.validator.ValidationUtil;
 
 @WebServlet("/files/*")
 public class FileServlet extends HttpServlet {
@@ -32,60 +33,129 @@ public class FileServlet extends HttpServlet {
     if (pathInfo == null || pathInfo.isEmpty()) {
       List<File> files = fileController.getAllFiles();
       List<FileDTO> fileDTOS = files.stream().map(fileMapper::fileToFileDTO).toList();
-
       writeJson(response, fileDTOS);
     } else {
-      String[] pathParts = pathInfo.split("/");
-      if (pathParts.length == 2) {
-        Integer id = Integer.parseInt(pathParts[1]);
-        File file = fileController.getFileById(id);
-        FileDTO fileDTO = fileMapper.fileToFileDTO(file);
-        writeJson(response, fileDTO);
-      } else {
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-      }
+      handleGetById(request, response, pathInfo);
     }
   }
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    File file = readJson(request, File.class);
-    file = fileController.createFile(file);
-    FileDTO fileDTO = fileMapper.fileToFileDTO(file);
-    writeJson(response, fileDTO);
+
+    FileDTO fileDTO = ValidationUtil.validateDTO(request, response, FileDTO.class);
+
+    if (fileDTO != null) {
+      try {
+        File file = fileMapper.fileDTOToFile(fileDTO);
+        file = fileController.createFile(file);
+        FileDTO createdFileDTO = fileMapper.fileToFileDTO(file);
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        writeJson(response, createdFileDTO);
+      } catch (Exception e) {
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        writeJson(response, Map.of("error", "Internal server error"));
+      }
+    }
   }
 
   @Override
   protected void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    File file = readJson(request, File.class);
-    file = fileController.updateFile(file);
-    FileDTO fileDTO = fileMapper.fileToFileDTO(file);
-    writeJson(response, fileDTO);
-  }
 
-  @Override
-  protected void doDelete(HttpServletRequest request, HttpServletResponse response) {
-    String pathInfo = request.getPathInfo();
+    FileDTO fileDTO = ValidationUtil.validateDTO(request, response, FileDTO.class);
 
-    if (pathInfo == null || pathInfo.isEmpty()) {
-      response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-    } else {
-      String[] pathParts = pathInfo.split("/");
-      if (pathParts.length == 2) {
-        Integer id = Integer.parseInt(pathParts[1]);
-        fileController.deleteFileById(id);
-        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-      } else {
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+    if (fileDTO != null) {
+      try {
+
+        File file = fileMapper.fileDTOToFile(fileDTO);
+        file = fileController.updateFile(file);
+        FileDTO updatedFileDTO = fileMapper.fileToFileDTO(file);
+        response.setStatus(HttpServletResponse.SC_OK);
+        writeJson(response, updatedFileDTO);
+      } catch (Exception e) {
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        writeJson(response, Map.of("error", "Internal server error"));
       }
     }
   }
+
+  @Override
+  protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    String pathInfo = request.getPathInfo();
+
+    if (pathInfo == null || pathInfo.isEmpty()) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      writeJson(response, Map.of("error", "Missing file ID"));
+    } else {
+      handleDeleteById(request, response, pathInfo);
+    }
+  }
+
+  /////////////////////////////////////////////////////
 
   private static FileController createFileController() {
     FileRepository fileRepository = new FileRepositoryImpl();
     FileService fileService = new FileServiceImpl(fileRepository);
     return new FileController(fileService);
+  }
+
+  private void handleGetById(
+      HttpServletRequest request, HttpServletResponse response, String pathInfo)
+      throws IOException {
+    try {
+
+      String[] pathParts = pathInfo.substring(1).split("/");
+
+      if (pathParts.length == 1) {
+        Integer id = Integer.parseInt(pathParts[0]);
+        File file = fileController.getFileById(id);
+        if (file != null) {
+          FileDTO fileDTO = fileMapper.fileToFileDTO(file);
+          response.setStatus(HttpServletResponse.SC_OK);
+          writeJson(response, fileDTO);
+        } else {
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          writeJson(response, Map.of("error", "Invalid path format"));
+        }
+      }
+    } catch (NumberFormatException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      response.getWriter().write("Invalid event ID format");
+    } catch (FileNotFoundException e) {
+      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      writeJson(response, Map.of("error", e.getMessage()));
+    } catch (Exception e) {
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      writeJson(response, Map.of("error", "Internal server error"));
+    }
+  }
+
+  private void handleDeleteById(
+      HttpServletRequest request, HttpServletResponse response, String pathInfo)
+      throws IOException {
+    try {
+
+      String[] pathParts = pathInfo.substring(1).split("/");
+
+      if (pathParts.length == 1) {
+        Integer id = Integer.parseInt(pathParts[0]);
+        fileController.deleteFileById(id);
+        response.setStatus(HttpServletResponse.SC_OK);
+      } else {
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        writeJson(response, Map.of("error", "Invalid path format"));
+      }
+    } catch (NumberFormatException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      writeJson(response, Map.of("error", "Invalid file ID format"));
+    } catch (FileNotFoundException e) {
+      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      writeJson(response, Map.of("error", e.getMessage()));
+    } catch (Exception e) {
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      writeJson(response, Map.of("error", "Internal server error"));
+    }
   }
 }
