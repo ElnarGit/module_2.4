@@ -35,7 +35,7 @@ public class EventServlet extends HttpServlet {
       List<EventDTO> eventDTOS = events.stream().map(eventMapper::eventToEventDTO).toList();
       writeJson(response, eventDTOS);
     } else {
-      handleGetById(request, response, pathInfo);
+      getEventById(request, response, pathInfo);
     }
   }
 
@@ -88,7 +88,7 @@ public class EventServlet extends HttpServlet {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       writeJson(response, Map.of("error", "Missing event ID"));
     } else {
-      handleDeleteById(request, response, pathInfo);
+      deleteEventById(request, response, pathInfo);
     }
   }
 
@@ -100,7 +100,7 @@ public class EventServlet extends HttpServlet {
     return new EventController(eventService);
   }
 
-  private void handleGetById(
+  private void getEventById(
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
@@ -131,7 +131,7 @@ public class EventServlet extends HttpServlet {
     }
   }
 
-  private void handleDeleteById(
+  private void deleteEventById(
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {

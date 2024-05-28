@@ -35,7 +35,7 @@ public class FileServlet extends HttpServlet {
       List<FileDTO> fileDTOS = files.stream().map(fileMapper::fileToFileDTO).toList();
       writeJson(response, fileDTOS);
     } else {
-      handleGetById(request, response, pathInfo);
+      getFileById(request, response, pathInfo);
     }
   }
 
@@ -89,7 +89,7 @@ public class FileServlet extends HttpServlet {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       writeJson(response, Map.of("error", "Missing file ID"));
     } else {
-      handleDeleteById(request, response, pathInfo);
+      deleteFileById(request, response, pathInfo);
     }
   }
 
@@ -101,7 +101,7 @@ public class FileServlet extends HttpServlet {
     return new FileController(fileService);
   }
 
-  private void handleGetById(
+  private void getFileById(
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
@@ -132,7 +132,7 @@ public class FileServlet extends HttpServlet {
     }
   }
 
-  private void handleDeleteById(
+  private void deleteFileById(
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {

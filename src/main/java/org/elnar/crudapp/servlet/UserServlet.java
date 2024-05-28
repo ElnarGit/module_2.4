@@ -35,7 +35,7 @@ public class UserServlet extends HttpServlet {
       List<UserDTO> userDTOS = users.stream().map(userMapper::userToUserDTO).toList();
       writeJson(response, userDTOS);
     } else {
-      handleGetById(request, response, pathInfo);
+      getUserById(request, response, pathInfo);
     }
   }
 
@@ -89,7 +89,7 @@ public class UserServlet extends HttpServlet {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       writeJson(response, Map.of("error", "Missing user ID"));
     } else {
-      handleDeleteById(request, response, pathInfo);
+      deleteUserById(request, response, pathInfo);
     }
   }
 
@@ -101,7 +101,7 @@ public class UserServlet extends HttpServlet {
     return new UserController(userService);
   }
 
-  private void handleGetById(
+  private void getUserById(
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
@@ -132,7 +132,7 @@ public class UserServlet extends HttpServlet {
     }
   }
 
-  private void handleDeleteById(
+  private void deleteUserById(
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
