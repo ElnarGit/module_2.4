@@ -9,15 +9,15 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public final class JsonUtil {
   private static final ObjectMapper objectMapper = new ObjectMapper();
-  
-  //Записывает объект в формате JSON в тело HTTP-ответа
+
+  // Записывает объект в формате JSON в тело HTTP-ответа
   public static void writeJson(HttpServletResponse response, Object object) throws IOException {
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
     objectMapper.writeValue(response.getOutputStream(), object);
   }
-  
-  //Читает JSON из тела HTTP-запроса и преобразует его в объект Java
+
+  // Читает JSON из тела HTTP-запроса и преобразует его в объект Java
   public static <T> T readJson(HttpServletRequest request, Class<T> clazz) throws IOException {
     return objectMapper.readValue(request.getInputStream(), clazz);
   }

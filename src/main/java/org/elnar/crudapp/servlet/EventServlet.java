@@ -1,6 +1,7 @@
 package org.elnar.crudapp.servlet;
 
 import static org.elnar.crudapp.util.JsonUtil.writeJson;
+import static org.elnar.crudapp.validator.ValidationUtil.validateDTO;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,7 +19,6 @@ import org.elnar.crudapp.repository.EventRepository;
 import org.elnar.crudapp.repository.impl.EventRepositoryImpl;
 import org.elnar.crudapp.service.EventService;
 import org.elnar.crudapp.service.impl.EventServiceImpl;
-import org.elnar.crudapp.validator.ValidationUtil;
 
 @WebServlet("/events/*")
 public class EventServlet extends HttpServlet {
@@ -43,7 +43,7 @@ public class EventServlet extends HttpServlet {
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    EventDTO eventDTO = ValidationUtil.validateDTO(request, response, EventDTO.class);
+    EventDTO eventDTO = validateDTO(request, response, EventDTO.class);
 
     if (eventDTO != null) {
       try {
@@ -63,7 +63,7 @@ public class EventServlet extends HttpServlet {
   protected void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    EventDTO eventDTO = ValidationUtil.validateDTO(request, response, EventDTO.class);
+    EventDTO eventDTO = validateDTO(request, response, EventDTO.class);
 
     if (eventDTO != null) {
       try {
@@ -104,24 +104,15 @@ public class EventServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
+      Integer id = extractEventId(pathInfo);
+      Event event = eventController.getEventById(id);
 
-      String[] pathParts = pathInfo.substring(1).split("/");
-
-      if (pathParts.length == 1) {
-        Integer id = Integer.parseInt(pathParts[0]);
-        Event event = eventController.getEventById(id);
-        if (event != null) {
-          EventDTO eventDTO = eventMapper.eventToEventDTO(event);
-          response.setStatus(HttpServletResponse.SC_OK);
-          writeJson(response, eventDTO);
-        } else {
-          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          writeJson(response, Map.of("error", "Invalid path format"));
-        }
-      }
+      EventDTO eventDTO = eventMapper.eventToEventDTO(event);
+      response.setStatus(HttpServletResponse.SC_OK);
+      writeJson(response, eventDTO);
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      response.getWriter().write("Invalid event ID format");
+      writeJson(response, Map.of("error", "Invalid event ID format"));
     } catch (EventNotFoundException e) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       writeJson(response, Map.of("error", e.getMessage()));
@@ -135,26 +126,27 @@ public class EventServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
-
-      String[] pathParts = pathInfo.substring(1).split("/");
-
-      if (pathParts.length == 1) {
-        Integer id = Integer.parseInt(pathParts[0]);
-        eventController.deleteEventById(id);
-        response.setStatus(HttpServletResponse.SC_OK);
-      } else {
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        writeJson(response, Map.of("error", "Invalid path format"));
-      }
+      Integer id = extractEventId(pathInfo);
+      eventController.deleteEventById(id);
+      response.setStatus(HttpServletResponse.SC_OK);
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      response.getWriter().write("Invalid event ID format");
+      writeJson(response, Map.of("error", "Invalid event ID format"));
     } catch (EventNotFoundException e) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       writeJson(response, Map.of("error", e.getMessage()));
     } catch (Exception e) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       writeJson(response, Map.of("error", "Internal server error"));
+    }
+  }
+
+  private Integer extractEventId(String pathInfo) {
+    String[] pathParts = pathInfo.split("/");
+    if (pathParts.length == 2) {
+      return Integer.parseInt(pathParts[1]);
+    } else {
+      throw new NumberFormatException("Invalid path format");
     }
   }
 }

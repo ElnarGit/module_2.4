@@ -130,7 +130,6 @@
       <version>${validation-api.version}</version>
     </dependency>
 
-
   </dependencies>
 
   <build>

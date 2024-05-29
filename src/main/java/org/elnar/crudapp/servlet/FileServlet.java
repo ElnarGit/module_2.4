@@ -1,6 +1,7 @@
 package org.elnar.crudapp.servlet;
 
 import static org.elnar.crudapp.util.JsonUtil.writeJson;
+import static org.elnar.crudapp.validator.ValidationUtil.validateDTO;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,7 +19,6 @@ import org.elnar.crudapp.repository.FileRepository;
 import org.elnar.crudapp.repository.impl.FileRepositoryImpl;
 import org.elnar.crudapp.service.FileService;
 import org.elnar.crudapp.service.impl.FileServiceImpl;
-import org.elnar.crudapp.validator.ValidationUtil;
 
 @WebServlet("/files/*")
 public class FileServlet extends HttpServlet {
@@ -43,7 +43,7 @@ public class FileServlet extends HttpServlet {
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    FileDTO fileDTO = ValidationUtil.validateDTO(request, response, FileDTO.class);
+    FileDTO fileDTO = validateDTO(request, response, FileDTO.class);
 
     if (fileDTO != null) {
       try {
@@ -63,7 +63,7 @@ public class FileServlet extends HttpServlet {
   protected void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    FileDTO fileDTO = ValidationUtil.validateDTO(request, response, FileDTO.class);
+    FileDTO fileDTO = validateDTO(request, response, FileDTO.class);
 
     if (fileDTO != null) {
       try {
@@ -105,24 +105,15 @@ public class FileServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
+      Integer id = extractFileId(pathInfo);
+      File file = fileController.getFileById(id);
 
-      String[] pathParts = pathInfo.substring(1).split("/");
-
-      if (pathParts.length == 1) {
-        Integer id = Integer.parseInt(pathParts[0]);
-        File file = fileController.getFileById(id);
-        if (file != null) {
-          FileDTO fileDTO = fileMapper.fileToFileDTO(file);
-          response.setStatus(HttpServletResponse.SC_OK);
-          writeJson(response, fileDTO);
-        } else {
-          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          writeJson(response, Map.of("error", "Invalid path format"));
-        }
-      }
+      FileDTO fileDTO = fileMapper.fileToFileDTO(file);
+      response.setStatus(HttpServletResponse.SC_OK);
+      writeJson(response, fileDTO);
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      response.getWriter().write("Invalid event ID format");
+      writeJson(response, Map.of("error", "Invalid file ID format"));
     } catch (FileNotFoundException e) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       writeJson(response, Map.of("error", e.getMessage()));
@@ -136,17 +127,9 @@ public class FileServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
-
-      String[] pathParts = pathInfo.substring(1).split("/");
-
-      if (pathParts.length == 1) {
-        Integer id = Integer.parseInt(pathParts[0]);
-        fileController.deleteFileById(id);
-        response.setStatus(HttpServletResponse.SC_OK);
-      } else {
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        writeJson(response, Map.of("error", "Invalid path format"));
-      }
+      Integer id = extractFileId(pathInfo);
+      fileController.deleteFileById(id);
+      response.setStatus(HttpServletResponse.SC_OK);
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       writeJson(response, Map.of("error", "Invalid file ID format"));
@@ -156,6 +139,15 @@ public class FileServlet extends HttpServlet {
     } catch (Exception e) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       writeJson(response, Map.of("error", "Internal server error"));
+    }
+  }
+
+  private Integer extractFileId(String pathInfo) {
+    String[] pathParts = pathInfo.split("/");
+    if (pathParts.length == 2) {
+      return Integer.parseInt(pathParts[1]);
+    } else {
+      throw new NumberFormatException("Invalid path format");
     }
   }
 }

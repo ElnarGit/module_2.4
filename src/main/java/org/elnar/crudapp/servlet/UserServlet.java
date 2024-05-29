@@ -1,6 +1,7 @@
 package org.elnar.crudapp.servlet;
 
 import static org.elnar.crudapp.util.JsonUtil.writeJson;
+import static org.elnar.crudapp.validator.ValidationUtil.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,7 +19,6 @@ import org.elnar.crudapp.repository.UserRepository;
 import org.elnar.crudapp.repository.impl.UserRepositoryImpl;
 import org.elnar.crudapp.service.UserService;
 import org.elnar.crudapp.service.impl.UserServiceImpl;
-import org.elnar.crudapp.validator.ValidationUtil;
 
 @WebServlet("/users/*")
 public class UserServlet extends HttpServlet {
@@ -42,7 +42,7 @@ public class UserServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    UserDTO userDTO = ValidationUtil.validateDTO(request, response, UserDTO.class);
+    UserDTO userDTO = validateDTO(request, response, UserDTO.class);
 
     if (userDTO != null) {
       try {
@@ -63,7 +63,7 @@ public class UserServlet extends HttpServlet {
   protected void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    UserDTO userDTO = ValidationUtil.validateDTO(request, response, UserDTO.class);
+    UserDTO userDTO = validateDTO(request, response, UserDTO.class);
 
     if (userDTO != null) {
       try {
@@ -105,21 +105,12 @@ public class UserServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
+      Integer id = extractUserId(pathInfo);
+      User user = userController.getUserById(id);
 
-      String[] pathParts = pathInfo.substring(1).split("/");
-
-      if (pathParts.length == 1) {
-        Integer id = Integer.parseInt(pathParts[0]);
-        User user = userController.getUserById(id);
-        if (user != null) {
-          UserDTO userDTO = userMapper.userToUserDTO(user);
-          response.setStatus(HttpServletResponse.SC_OK);
-          writeJson(response, userDTO);
-        }
-      } else {
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        writeJson(response, Map.of("error", "Invalid path format"));
-      }
+      UserDTO userDTO = userMapper.userToUserDTO(user);
+      response.setStatus(HttpServletResponse.SC_OK);
+      writeJson(response, userDTO);
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       writeJson(response, Map.of("error", "Invalid user ID format"));
@@ -136,17 +127,9 @@ public class UserServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
-
-      String[] pathParts = pathInfo.substring(1).split("/");
-
-      if (pathParts.length == 1) {
-        Integer id = Integer.parseInt(pathParts[0]);
-        userController.deleteUserById(id);
-        response.setStatus(HttpServletResponse.SC_OK);
-      } else {
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        writeJson(response, Map.of("error", "Invalid path format"));
-      }
+      Integer id = extractUserId(pathInfo);
+      userController.deleteUserById(id);
+      response.setStatus(HttpServletResponse.SC_OK);
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       writeJson(response, Map.of("error", "Invalid user ID format"));
@@ -156,6 +139,15 @@ public class UserServlet extends HttpServlet {
     } catch (Exception e) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       writeJson(response, Map.of("error", "Internal server error"));
+    }
+  }
+
+  private Integer extractUserId(String pathInfo) {
+    String[] pathParts = pathInfo.split("/");
+    if (pathParts.length == 2) {
+      return Integer.parseInt(pathParts[1]);
+    } else {
+      throw new NumberFormatException("Invalid path format");
     }
   }
 }
