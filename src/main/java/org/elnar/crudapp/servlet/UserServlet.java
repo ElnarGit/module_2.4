@@ -1,15 +1,5 @@
 package org.elnar.crudapp.servlet;
 
-import static org.elnar.crudapp.util.JsonUtil.writeJson;
-import static org.elnar.crudapp.validator.ValidationUtil.*;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.elnar.crudapp.controller.UserController;
 import org.elnar.crudapp.dto.UserDTO;
 import org.elnar.crudapp.entity.User;
@@ -19,6 +9,17 @@ import org.elnar.crudapp.repository.UserRepository;
 import org.elnar.crudapp.repository.impl.UserRepositoryImpl;
 import org.elnar.crudapp.service.UserService;
 import org.elnar.crudapp.service.impl.UserServiceImpl;
+
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import static org.elnar.crudapp.util.JsonUtil.writeObjectToJson;
+import static org.elnar.crudapp.validator.ValidationUtil.validateDTO;
 
 @WebServlet("/users/*")
 public class UserServlet extends HttpServlet {
@@ -33,7 +34,7 @@ public class UserServlet extends HttpServlet {
     if (pathInfo == null || pathInfo.isEmpty()) {
       List<User> users = userController.getAllUsers();
       List<UserDTO> userDTOS = users.stream().map(userMapper::userToUserDTO).toList();
-      writeJson(response, userDTOS);
+      writeObjectToJson(response, userDTOS);
     } else {
       getUserById(request, response, pathInfo);
     }
@@ -46,15 +47,14 @@ public class UserServlet extends HttpServlet {
 
     if (userDTO != null) {
       try {
-
         User user = userMapper.userDTOToUser(userDTO);
         user = userController.createUser(user);
         UserDTO createdUserDTO = userMapper.userToUserDTO(user);
         response.setStatus(HttpServletResponse.SC_CREATED);
-        writeJson(response, createdUserDTO);
+        writeObjectToJson(response, createdUserDTO);
       } catch (Exception e) {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        writeJson(response, Map.of("error", "Internal server error"));
+        writeObjectToJson(response, Map.of("error", "Internal server error"));
       }
     }
   }
@@ -62,20 +62,18 @@ public class UserServlet extends HttpServlet {
   @Override
   protected void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-
     UserDTO userDTO = validateDTO(request, response, UserDTO.class);
 
     if (userDTO != null) {
       try {
-
         User user = userMapper.userDTOToUser(userDTO);
         user = userController.updateUser(user);
         UserDTO updatedUserDTO = userMapper.userToUserDTO(user);
         response.setStatus(HttpServletResponse.SC_OK);
-        writeJson(response, updatedUserDTO);
+        writeObjectToJson(response, updatedUserDTO);
       } catch (Exception e) {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        writeJson(response, Map.of("error", "Internal server error"));
+        writeObjectToJson(response, Map.of("error", "Internal server error"));
       }
     }
   }
@@ -87,7 +85,7 @@ public class UserServlet extends HttpServlet {
 
     if (pathInfo == null || pathInfo.isEmpty()) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      writeJson(response, Map.of("error", "Missing user ID"));
+      writeObjectToJson(response, Map.of("error", "Missing user ID"));
     } else {
       deleteUserById(request, response, pathInfo);
     }
@@ -105,21 +103,21 @@ public class UserServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
-      Integer id = extractUserId(pathInfo);
+      Integer id = getUserIdFromPathInfo(pathInfo);
       User user = userController.getUserById(id);
 
       UserDTO userDTO = userMapper.userToUserDTO(user);
       response.setStatus(HttpServletResponse.SC_OK);
-      writeJson(response, userDTO);
+      writeObjectToJson(response, userDTO);
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      writeJson(response, Map.of("error", "Invalid user ID format"));
+      writeObjectToJson(response, Map.of("error", "Invalid user ID format"));
     } catch (UserNotFoundException e) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-      writeJson(response, Map.of("error", e.getMessage()));
+      writeObjectToJson(response, Map.of("error", e.getMessage()));
     } catch (Exception e) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      writeJson(response, Map.of("error", "Internal server error"));
+      writeObjectToJson(response, Map.of("error", "Internal server error"));
     }
   }
 
@@ -127,22 +125,22 @@ public class UserServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
-      Integer id = extractUserId(pathInfo);
+      Integer id = getUserIdFromPathInfo(pathInfo);
       userController.deleteUserById(id);
       response.setStatus(HttpServletResponse.SC_OK);
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      writeJson(response, Map.of("error", "Invalid user ID format"));
+      writeObjectToJson(response, Map.of("error", "Invalid user ID format"));
     } catch (UserNotFoundException e) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-      writeJson(response, Map.of("error", e.getMessage()));
+      writeObjectToJson(response, Map.of("error", e.getMessage()));
     } catch (Exception e) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      writeJson(response, Map.of("error", "Internal server error"));
+      writeObjectToJson(response, Map.of("error", "Internal server error"));
     }
   }
-
-  private Integer extractUserId(String pathInfo) {
+  
+  private Integer getUserIdFromPathInfo(String pathInfo) {
     String[] pathParts = pathInfo.split("/");
     if (pathParts.length == 2) {
       return Integer.parseInt(pathParts[1]);

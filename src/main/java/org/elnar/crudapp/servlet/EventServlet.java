@@ -1,15 +1,5 @@
 package org.elnar.crudapp.servlet;
 
-import static org.elnar.crudapp.util.JsonUtil.writeJson;
-import static org.elnar.crudapp.validator.ValidationUtil.validateDTO;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.elnar.crudapp.controller.EventController;
 import org.elnar.crudapp.dto.EventDTO;
 import org.elnar.crudapp.entity.Event;
@@ -19,6 +9,17 @@ import org.elnar.crudapp.repository.EventRepository;
 import org.elnar.crudapp.repository.impl.EventRepositoryImpl;
 import org.elnar.crudapp.service.EventService;
 import org.elnar.crudapp.service.impl.EventServiceImpl;
+
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import static org.elnar.crudapp.util.JsonUtil.writeObjectToJson;
+import static org.elnar.crudapp.validator.ValidationUtil.validateDTO;
 
 @WebServlet("/events/*")
 public class EventServlet extends HttpServlet {
@@ -33,7 +34,7 @@ public class EventServlet extends HttpServlet {
     if (pathInfo == null || pathInfo.isEmpty()) {
       List<Event> events = eventController.getAllEvents();
       List<EventDTO> eventDTOS = events.stream().map(eventMapper::eventToEventDTO).toList();
-      writeJson(response, eventDTOS);
+      writeObjectToJson(response, eventDTOS);
     } else {
       getEventById(request, response, pathInfo);
     }
@@ -51,10 +52,10 @@ public class EventServlet extends HttpServlet {
         event = eventController.createEvent(event);
         EventDTO createdEventDTO = eventMapper.eventToEventDTO(event);
         response.setStatus(HttpServletResponse.SC_CREATED);
-        writeJson(response, createdEventDTO);
+        writeObjectToJson(response, createdEventDTO);
       } catch (Exception e) {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        writeJson(response, Map.of("error", "Internal server error"));
+        writeObjectToJson(response, Map.of("error", "Internal server error"));
       }
     }
   }
@@ -71,10 +72,10 @@ public class EventServlet extends HttpServlet {
         event = eventController.updateEvent(event);
         EventDTO updatedEventDTO = eventMapper.eventToEventDTO(event);
         response.setStatus(HttpServletResponse.SC_OK);
-        writeJson(response, updatedEventDTO);
+        writeObjectToJson(response, updatedEventDTO);
       } catch (Exception e) {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        writeJson(response, Map.of("error", "Internal server error"));
+        writeObjectToJson(response, Map.of("error", "Internal server error"));
       }
     }
   }
@@ -86,7 +87,7 @@ public class EventServlet extends HttpServlet {
 
     if (pathInfo == null || pathInfo.isEmpty()) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      writeJson(response, Map.of("error", "Missing event ID"));
+      writeObjectToJson(response, Map.of("error", "Missing event ID"));
     } else {
       deleteEventById(request, response, pathInfo);
     }
@@ -104,21 +105,21 @@ public class EventServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
-      Integer id = extractEventId(pathInfo);
+      Integer id = getEventIdFromPathInfo(pathInfo);
       Event event = eventController.getEventById(id);
 
       EventDTO eventDTO = eventMapper.eventToEventDTO(event);
       response.setStatus(HttpServletResponse.SC_OK);
-      writeJson(response, eventDTO);
+      writeObjectToJson(response, eventDTO);
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      writeJson(response, Map.of("error", "Invalid event ID format"));
+      writeObjectToJson(response, Map.of("error", "Invalid event ID format"));
     } catch (EventNotFoundException e) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-      writeJson(response, Map.of("error", e.getMessage()));
+      writeObjectToJson(response, Map.of("error", e.getMessage()));
     } catch (Exception e) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      writeJson(response, Map.of("error", "Internal server error"));
+      writeObjectToJson(response, Map.of("error", "Internal server error"));
     }
   }
 
@@ -126,22 +127,22 @@ public class EventServlet extends HttpServlet {
       HttpServletRequest request, HttpServletResponse response, String pathInfo)
       throws IOException {
     try {
-      Integer id = extractEventId(pathInfo);
+      Integer id = getEventIdFromPathInfo(pathInfo);
       eventController.deleteEventById(id);
       response.setStatus(HttpServletResponse.SC_OK);
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      writeJson(response, Map.of("error", "Invalid event ID format"));
+      writeObjectToJson(response, Map.of("error", "Invalid event ID format"));
     } catch (EventNotFoundException e) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-      writeJson(response, Map.of("error", e.getMessage()));
+      writeObjectToJson(response, Map.of("error", e.getMessage()));
     } catch (Exception e) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      writeJson(response, Map.of("error", "Internal server error"));
+      writeObjectToJson(response, Map.of("error", "Internal server error"));
     }
   }
 
-  private Integer extractEventId(String pathInfo) {
+  private Integer getEventIdFromPathInfo(String pathInfo) {
     String[] pathParts = pathInfo.split("/");
     if (pathParts.length == 2) {
       return Integer.parseInt(pathParts[1]);
