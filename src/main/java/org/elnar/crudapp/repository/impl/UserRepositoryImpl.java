@@ -4,7 +4,7 @@ import static org.elnar.crudapp.util.HibernateUtil.openSession;
 
 import java.util.List;
 import org.elnar.crudapp.entity.User;
-import org.elnar.crudapp.exception.HibernateRepositoryException;
+import org.elnar.crudapp.exception.RepositoryException;
 import org.elnar.crudapp.exception.UserNotFoundException;
 import org.elnar.crudapp.repository.UserRepository;
 import org.hibernate.HibernateException;
@@ -27,7 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
 
       return user;
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException(
+      throw new RepositoryException(
           "Ошибка при получении пользователя по идентификатору", e);
     }
   }
@@ -38,7 +38,7 @@ public class UserRepositoryImpl implements UserRepository {
       return session.createQuery("FROM User", User.class).getResultList();
 
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при получении всех пользователей", e);
+      throw new RepositoryException("Ошибка при получении всех пользователей", e);
     }
   }
 
@@ -52,7 +52,7 @@ public class UserRepositoryImpl implements UserRepository {
 
       return user;
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при сохранении пользователя", e);
+      throw new RepositoryException("Ошибка при сохранении пользователя", e);
     }
   }
 
@@ -66,7 +66,7 @@ public class UserRepositoryImpl implements UserRepository {
 
       return user;
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при обновление пользователя", e);
+      throw new RepositoryException("Ошибка при обновление пользователя", e);
     }
   }
 
@@ -84,7 +84,7 @@ public class UserRepositoryImpl implements UserRepository {
 
       session.getTransaction().commit();
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при удаление пользователя", e);
+      throw new RepositoryException("Ошибка при удаление пользователя", e);
     }
   }
 }

@@ -5,7 +5,7 @@ import static org.elnar.crudapp.util.HibernateUtil.openSession;
 import java.util.List;
 import org.elnar.crudapp.entity.File;
 import org.elnar.crudapp.exception.FileNotFoundException;
-import org.elnar.crudapp.exception.HibernateRepositoryException;
+import org.elnar.crudapp.exception.RepositoryException;
 import org.elnar.crudapp.repository.FileRepository;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -22,7 +22,7 @@ public class FileRepositoryImpl implements FileRepository {
 
       return file;
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при получении файла по идентификатору", e);
+      throw new RepositoryException("Ошибка при получении файла по идентификатору", e);
     }
   }
 
@@ -31,7 +31,7 @@ public class FileRepositoryImpl implements FileRepository {
 
       return session.createQuery("FROM File", File.class).getResultList();
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при получении всех файлов", e);
+      throw new RepositoryException("Ошибка при получении всех файлов", e);
     }
   }
 
@@ -45,7 +45,7 @@ public class FileRepositoryImpl implements FileRepository {
 
       return file;
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при сохранении файла", e);
+      throw new RepositoryException("Ошибка при сохранении файла", e);
     }
   }
 
@@ -59,7 +59,7 @@ public class FileRepositoryImpl implements FileRepository {
 
       return file;
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при обновление файла", e);
+      throw new RepositoryException("Ошибка при обновление файла", e);
     }
   }
 
@@ -77,7 +77,7 @@ public class FileRepositoryImpl implements FileRepository {
 
       session.getTransaction().commit();
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при удаление файла", e);
+      throw new RepositoryException("Ошибка при удаление файла", e);
     }
   }
 }

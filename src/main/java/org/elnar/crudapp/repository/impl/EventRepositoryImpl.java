@@ -5,7 +5,7 @@ import static org.elnar.crudapp.util.HibernateUtil.openSession;
 import java.util.List;
 import org.elnar.crudapp.entity.Event;
 import org.elnar.crudapp.exception.EventNotFoundException;
-import org.elnar.crudapp.exception.HibernateRepositoryException;
+import org.elnar.crudapp.exception.RepositoryException;
 import org.elnar.crudapp.repository.EventRepository;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -31,7 +31,7 @@ public class EventRepositoryImpl implements EventRepository {
 
       return event;
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при получении события по идентификатору", e);
+      throw new RepositoryException("Ошибка при получении события по идентификатору", e);
     }
   }
 
@@ -41,7 +41,7 @@ public class EventRepositoryImpl implements EventRepository {
       return session.createQuery("FROM Event ", Event.class).getResultList();
 
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при получении всех событий", e);
+      throw new RepositoryException("Ошибка при получении всех событий", e);
     }
   }
 
@@ -55,7 +55,7 @@ public class EventRepositoryImpl implements EventRepository {
 
       return event;
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при сохранении события", e);
+      throw new RepositoryException("Ошибка при сохранении события", e);
     }
   }
 
@@ -69,7 +69,7 @@ public class EventRepositoryImpl implements EventRepository {
 
       return event;
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при обновление события", e);
+      throw new RepositoryException("Ошибка при обновление события", e);
     }
   }
 
@@ -87,7 +87,7 @@ public class EventRepositoryImpl implements EventRepository {
 
       session.getTransaction().commit();
     } catch (HibernateException e) {
-      throw new HibernateRepositoryException("Ошибка при удаление события", e);
+      throw new RepositoryException("Ошибка при удаление события", e);
     }
   }
 }

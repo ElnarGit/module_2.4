@@ -11,5 +11,5 @@ public interface EventMapper {
 
   EventDTO eventToEventDTO(Event event);
 
-  Event eventDTOTOEvent(EventDTO eventDTO);
+  Event eventDTOToEvent(EventDTO eventDTO);
 }

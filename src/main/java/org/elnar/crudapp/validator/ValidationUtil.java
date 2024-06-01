@@ -1,25 +1,25 @@
 package org.elnar.crudapp.validator;
 
+import static org.elnar.crudapp.util.JsonUtil.readJsonFromRequest;
+import static org.elnar.crudapp.util.JsonUtil.writeObjectToJson;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.elnar.crudapp.util.JsonUtil.readJsonFromRequest;
-import static org.elnar.crudapp.util.JsonUtil.writeObjectToJson;
-
 
 public class ValidationUtil {
   private static final ValidatorFactory validatorFactory =
       Validation.buildDefaultValidatorFactory();
   private static final Validator validator = validatorFactory.getValidator();
 
+  // Валидирует DTO-объект, прочитанный из тела HTTP-запроса.
   public static <T> T validateDTO(
       HttpServletRequest request, HttpServletResponse response, Class<T> clazz) throws IOException {
     try {

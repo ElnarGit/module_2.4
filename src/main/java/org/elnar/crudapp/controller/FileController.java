@@ -1,31 +1,150 @@
 package org.elnar.crudapp.controller;
 
-import java.util.List;
-import lombok.RequiredArgsConstructor;
+import org.elnar.crudapp.dto.FileDTO;
 import org.elnar.crudapp.entity.File;
+import org.elnar.crudapp.exception.ControllerException;
+import org.elnar.crudapp.exception.FileNotFoundException;
+import org.elnar.crudapp.mapper.FileMapper;
+import org.elnar.crudapp.repository.FileRepository;
+import org.elnar.crudapp.repository.impl.FileRepositoryImpl;
 import org.elnar.crudapp.service.FileService;
+import org.elnar.crudapp.service.impl.FileServiceImpl;
 
-@RequiredArgsConstructor
-public class FileController {
-  private final FileService fileService;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
-  public File getFileById(Integer id) {
-    return fileService.getById(id);
+import static org.elnar.crudapp.util.JsonUtil.writeObjectToJson;
+import static org.elnar.crudapp.validator.ValidationUtil.validateDTO;
+
+@WebServlet("/files/*")
+public class FileController extends HttpServlet {
+  private final FileService fileService = createFileService();
+  private final FileMapper fileMapper = FileMapper.INSTANCE;
+
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    String pathInfo = request.getPathInfo();
+
+    if (pathInfo == null || pathInfo.isEmpty()) {
+      List<File> files = fileService.getAll();
+      List<FileDTO> fileDTOS = files.stream().map(fileMapper::fileToFileDTO).toList();
+      writeObjectToJson(response, fileDTOS);
+    } else {
+      getFileById(request, response, pathInfo);
+    }
   }
 
-  public List<File> getAllFiles() {
-    return fileService.getAll();
+  @Override
+  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    FileDTO fileDTO = validateDTO(request, response, FileDTO.class);
+
+    if (fileDTO != null) {
+      try {
+        File file = fileMapper.fileDTOToFile(fileDTO);
+        file = fileService.save(file);
+        FileDTO createdFileDTO = fileMapper.fileToFileDTO(file);
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        writeObjectToJson(response, createdFileDTO);
+      } catch (ControllerException e) {
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        writeObjectToJson(response, Map.of("error", "Internal server error"));
+      }
+    }
   }
 
-  public File createFile(File file) {
-    return fileService.save(file);
+  @Override
+  protected void doPut(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    FileDTO fileDTO = validateDTO(request, response, FileDTO.class);
+
+    if (fileDTO != null) {
+      try {
+        File file = fileMapper.fileDTOToFile(fileDTO);
+        file = fileService.update(file);
+        FileDTO updatedFileDTO = fileMapper.fileToFileDTO(file);
+        response.setStatus(HttpServletResponse.SC_OK);
+        writeObjectToJson(response, updatedFileDTO);
+      } catch (ControllerException e) {
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        writeObjectToJson(response, Map.of("error", "Internal server error"));
+      }
+    }
   }
 
-  public File updateFile(File file) {
-    return fileService.update(file);
+  @Override
+  protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    String pathInfo = request.getPathInfo();
+
+    if (pathInfo == null || pathInfo.isEmpty()) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      writeObjectToJson(response, Map.of("error", "Missing file ID"));
+    } else {
+      deleteFileById(request, response, pathInfo);
+    }
   }
 
-  public void deleteFileById(Integer id) {
-    fileService.deleteById(id);
+  /////////////////////////////////////////////////////
+  
+  private static FileService createFileService(){
+    FileRepository fileRepository = new FileRepositoryImpl();
+    return new FileServiceImpl(fileRepository);
+  }
+
+  private void getFileById(
+      HttpServletRequest request, HttpServletResponse response, String pathInfo)
+      throws IOException {
+    try {
+      Integer id = getFileIdFromPathInfo(pathInfo);
+      File file = fileService.getById(id);
+
+      FileDTO fileDTO = fileMapper.fileToFileDTO(file);
+      response.setStatus(HttpServletResponse.SC_OK);
+      writeObjectToJson(response, fileDTO);
+    } catch (NumberFormatException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      writeObjectToJson(response, Map.of("error", "Invalid file ID format"));
+    } catch (FileNotFoundException e) {
+      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      writeObjectToJson(response, Map.of("error", e.getMessage()));
+    } catch (ControllerException e) {
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      writeObjectToJson(response, Map.of("error", "Internal server error"));
+    }
+  }
+
+  private void deleteFileById(
+      HttpServletRequest request, HttpServletResponse response, String pathInfo)
+      throws IOException {
+    try {
+      Integer id = getFileIdFromPathInfo(pathInfo);
+      fileService.deleteById(id);
+      response.setStatus(HttpServletResponse.SC_OK);
+    } catch (NumberFormatException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      writeObjectToJson(response, Map.of("error", "Invalid file ID format"));
+    } catch (FileNotFoundException e) {
+      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      writeObjectToJson(response, Map.of("error", e.getMessage()));
+    } catch (ControllerException e) {
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      writeObjectToJson(response, Map.of("error", "Internal server error"));
+    }
+  }
+
+  private Integer getFileIdFromPathInfo(String pathInfo) {
+    String[] pathParts = pathInfo.split("/");
+    if (pathParts.length == 2) {
+      return Integer.parseInt(pathParts[1]);
+    } else {
+      throw new NumberFormatException("Invalid path format");
+    }
   }
 }

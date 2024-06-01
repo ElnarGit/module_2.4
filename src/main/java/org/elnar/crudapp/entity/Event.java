@@ -19,12 +19,14 @@ public class Event {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Integer id;
-
-  @NotNull(message = "Пользователь не может быть пустым") @ManyToOne
+  
+  @ManyToOne(optional = false)
   @JoinColumn(name = "user_id", referencedColumnName = "id")
+  @NotNull(message = "Пользователь не может быть пустым")
   private User user;
-
-  @NotNull(message = "Файл не может быть пустым") @ManyToOne
+  
+  @ManyToOne(optional = false)
   @JoinColumn(name = "file_id", referencedColumnName = "id")
+  @NotNull(message = "Файл не может быть пустым")
   private File file;
 }
