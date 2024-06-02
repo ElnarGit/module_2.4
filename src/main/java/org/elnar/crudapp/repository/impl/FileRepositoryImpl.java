@@ -52,6 +52,12 @@ public class FileRepositoryImpl implements FileRepository {
   public File update(File file) {
     try (Session session = openSession()) {
       session.beginTransaction();
+  
+      File updateFile = getById(file.getId());
+  
+      if(updateFile == null){
+        throw new FileNotFoundException(file.getId());
+      }
 
       session.merge(file);
 

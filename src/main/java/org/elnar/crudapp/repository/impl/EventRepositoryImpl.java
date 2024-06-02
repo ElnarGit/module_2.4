@@ -62,6 +62,12 @@ public class EventRepositoryImpl implements EventRepository {
   public Event update(Event event) {
     try (Session session = openSession()) {
       session.beginTransaction();
+  
+      Event updateEvent = getById(event.getId());
+  
+      if(updateEvent == null){
+        throw new EventNotFoundException(event.getId());
+      }
 
       session.merge(event);
 

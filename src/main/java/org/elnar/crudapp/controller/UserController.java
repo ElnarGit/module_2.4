@@ -1,5 +1,15 @@
 package org.elnar.crudapp.controller;
 
+import static org.elnar.crudapp.util.JsonUtil.readJsonFromRequest;
+import static org.elnar.crudapp.util.JsonUtil.writeObjectToJson;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.elnar.crudapp.dto.UserDTO;
 import org.elnar.crudapp.entity.User;
 import org.elnar.crudapp.exception.ControllerException;
@@ -9,17 +19,6 @@ import org.elnar.crudapp.repository.UserRepository;
 import org.elnar.crudapp.repository.impl.UserRepositoryImpl;
 import org.elnar.crudapp.service.UserService;
 import org.elnar.crudapp.service.impl.UserServiceImpl;
-
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import static org.elnar.crudapp.util.JsonUtil.writeObjectToJson;
-import static org.elnar.crudapp.validator.ValidationUtil.validateDTO;
 
 @WebServlet("/users/*")
 public class UserController extends HttpServlet {
@@ -43,7 +42,7 @@ public class UserController extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    UserDTO userDTO = validateDTO(request, response, UserDTO.class);
+    UserDTO userDTO = readJsonFromRequest(request, UserDTO.class);
 
     if (userDTO != null) {
       try {
@@ -62,7 +61,7 @@ public class UserController extends HttpServlet {
   @Override
   protected void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    UserDTO userDTO = validateDTO(request, response, UserDTO.class);
+    UserDTO userDTO = readJsonFromRequest(request, UserDTO.class);
 
     if (userDTO != null) {
       try {
@@ -71,7 +70,10 @@ public class UserController extends HttpServlet {
         UserDTO updatedUserDTO = userMapper.userToUserDTO(user);
         response.setStatus(HttpServletResponse.SC_OK);
         writeObjectToJson(response, updatedUserDTO);
-      } catch (ControllerException e) {
+      } catch (UserNotFoundException e) {
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        writeObjectToJson(response, Map.of("error", e.getMessage()));
+      }catch (ControllerException e) {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         writeObjectToJson(response, Map.of("error", "Internal server error"));
       }
@@ -92,8 +94,8 @@ public class UserController extends HttpServlet {
   }
 
   /////////////////////////////////////////////////////////////
-  
-  private static UserService createUserService(){
+
+  private static UserService createUserService() {
     UserRepository userRepository = new UserRepositoryImpl();
     return new UserServiceImpl(userRepository);
   }
@@ -127,6 +129,7 @@ public class UserController extends HttpServlet {
       Integer id = getUserIdFromPathInfo(pathInfo);
       userService.deleteById(id);
       response.setStatus(HttpServletResponse.SC_OK);
+      writeObjectToJson(response, Map.of("message", "User deleted successfully"));
     } catch (NumberFormatException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       writeObjectToJson(response, Map.of("error", "Invalid user ID format"));

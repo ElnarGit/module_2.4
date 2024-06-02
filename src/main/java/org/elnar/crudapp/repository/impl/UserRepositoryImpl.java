@@ -27,8 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
 
       return user;
     } catch (HibernateException e) {
-      throw new RepositoryException(
-          "Ошибка при получении пользователя по идентификатору", e);
+      throw new RepositoryException("Ошибка при получении пользователя по идентификатору", e);
     }
   }
 
@@ -59,6 +58,12 @@ public class UserRepositoryImpl implements UserRepository {
   public User update(User user) {
     try (Session session = openSession()) {
       session.beginTransaction();
+  
+      User updateUser = getById(user.getId());
+  
+      if(updateUser == null){
+        throw new UserNotFoundException(user.getId());
+      }
 
       session.merge(user);
 
