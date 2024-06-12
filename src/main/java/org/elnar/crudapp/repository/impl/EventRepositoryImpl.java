@@ -14,12 +14,13 @@ public class EventRepositoryImpl implements EventRepository {
 
   public Event getById(Integer id) {
     try (Session session = openSession()) {
+
       Event event =
           session
               .createQuery(
                   "FROM Event e "
-                      + "left join fetch e.user "
-                      + "left join fetch  e.file "
+                      + "left join fetch e.user u "
+                      + "left join fetch e.file f "
                       + "where e.id = :eventId",
                   Event.class)
               .setParameter("eventId", id)
@@ -62,10 +63,10 @@ public class EventRepositoryImpl implements EventRepository {
   public Event update(Event event) {
     try (Session session = openSession()) {
       session.beginTransaction();
-  
+
       Event updateEvent = getById(event.getId());
-  
-      if(updateEvent == null){
+
+      if (updateEvent == null) {
         throw new EventNotFoundException(event.getId());
       }
 

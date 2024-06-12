@@ -18,10 +18,9 @@ import org.elnar.crudapp.mapper.UserMapper;
 import org.elnar.crudapp.repository.UserRepository;
 import org.elnar.crudapp.repository.impl.UserRepositoryImpl;
 import org.elnar.crudapp.service.UserService;
-import org.elnar.crudapp.service.impl.UserServiceImpl;
 
-@WebServlet("/users/*")
-public class UserController extends HttpServlet {
+@WebServlet("/api/v1/users/*")
+public class UserRestControllerV1 extends HttpServlet {
   private final UserService userService = createUserService();
   private final UserMapper userMapper = UserMapper.INSTANCE;
 
@@ -73,7 +72,7 @@ public class UserController extends HttpServlet {
       } catch (UserNotFoundException e) {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         writeObjectToJson(response, Map.of("error", e.getMessage()));
-      }catch (ControllerException e) {
+      } catch (ControllerException e) {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         writeObjectToJson(response, Map.of("error", "Internal server error"));
       }
@@ -97,7 +96,7 @@ public class UserController extends HttpServlet {
 
   private static UserService createUserService() {
     UserRepository userRepository = new UserRepositoryImpl();
-    return new UserServiceImpl(userRepository);
+    return new UserService(userRepository);
   }
 
   private void getUserById(
@@ -106,8 +105,8 @@ public class UserController extends HttpServlet {
     try {
       Integer id = getUserIdFromPathInfo(pathInfo);
       User user = userService.getById(id);
-
       UserDTO userDTO = userMapper.userToUserDTO(user);
+      
       response.setStatus(HttpServletResponse.SC_OK);
       writeObjectToJson(response, userDTO);
     } catch (NumberFormatException e) {
@@ -128,6 +127,7 @@ public class UserController extends HttpServlet {
     try {
       Integer id = getUserIdFromPathInfo(pathInfo);
       userService.deleteById(id);
+      
       response.setStatus(HttpServletResponse.SC_OK);
       writeObjectToJson(response, Map.of("message", "User deleted successfully"));
     } catch (NumberFormatException e) {

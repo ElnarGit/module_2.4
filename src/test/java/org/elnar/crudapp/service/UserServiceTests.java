@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.elnar.crudapp.entity.User;
 import org.elnar.crudapp.repository.UserRepository;
-import org.elnar.crudapp.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,7 @@ public class UserServiceTests {
   @BeforeAll
   static void setUp() {
     userRepository = Mockito.mock(UserRepository.class);
-    userService = new UserServiceImpl(userRepository);
+    userService = new UserService(userRepository);
 
     testUser = User.builder().id(1).name("Test name").events(new ArrayList<>()).build();
   }

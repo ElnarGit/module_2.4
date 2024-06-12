@@ -4,8 +4,6 @@ import static org.elnar.crudapp.util.JsonUtil.readJsonFromRequest;
 import static org.elnar.crudapp.util.JsonUtil.writeObjectToJson;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -16,9 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import org.elnar.crudapp.dto.FileDTO;
-import org.elnar.crudapp.entity.Event;
 import org.elnar.crudapp.entity.File;
-import org.elnar.crudapp.entity.User;
 import org.elnar.crudapp.exception.ControllerException;
 import org.elnar.crudapp.exception.FileNotFoundException;
 import org.elnar.crudapp.exception.UserNotFoundException;
@@ -32,16 +28,11 @@ import org.elnar.crudapp.repository.impl.UserRepositoryImpl;
 import org.elnar.crudapp.service.EventService;
 import org.elnar.crudapp.service.FileService;
 import org.elnar.crudapp.service.UserService;
-import org.elnar.crudapp.service.impl.EventServiceImpl;
-import org.elnar.crudapp.service.impl.FileServiceImpl;
-import org.elnar.crudapp.service.impl.UserServiceImpl;
 
-@WebServlet("/files/*")
-@MultipartConfig
-public class FileController extends HttpServlet {
+@WebServlet("/api/v1/files/*")
+@MultipartConfig // позволяет сервлету принимать запросы, содержащие файл
+public class FileRestControllerV1 extends HttpServlet {
   private final FileService fileService = createFileService();
-  private final UserService userService = createUserService();
-  private final EventService eventService = createEventService();
   private final FileMapper fileMapper = FileMapper.INSTANCE;
 
   @Override
@@ -69,7 +60,23 @@ public class FileController extends HttpServlet {
       writeObjectToJson(response, Map.of("error", "Missing user ID or file in request"));
       return;
     }
-    uploadFile(request, response);
+
+    try {
+      Integer userId = Integer.parseInt(userIdHeader);
+      FileDTO fileDTO = fileService.uploadFile(userId, filePart);
+      
+      response.setStatus(HttpServletResponse.SC_CREATED);
+      writeObjectToJson(response, fileDTO);
+    } catch (NumberFormatException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      writeObjectToJson(response, Map.of("error", "Invalid user ID format"));
+    } catch (UserNotFoundException e) {
+      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      writeObjectToJson(response, Map.of("error", e.getMessage()));
+    } catch (IOException e) {
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      writeObjectToJson(response, Map.of("error", "Failed to upload file"));
+    }
   }
 
   @Override
@@ -84,7 +91,7 @@ public class FileController extends HttpServlet {
         FileDTO updatedFileDTO = fileMapper.fileToFileDTO(file);
         response.setStatus(HttpServletResponse.SC_OK);
         writeObjectToJson(response, updatedFileDTO);
-      }catch (FileNotFoundException e) {
+      } catch (FileNotFoundException e) {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         writeObjectToJson(response, Map.of("error", e.getMessage()));
       } catch (ControllerException e) {
@@ -111,17 +118,19 @@ public class FileController extends HttpServlet {
 
   private static FileService createFileService() {
     FileRepository fileRepository = new FileRepositoryImpl();
-    return new FileServiceImpl(fileRepository);
+    UserService userService = createUserService();
+    EventService eventService = createEventService();
+    return new FileService(fileRepository, userService, eventService);
   }
 
   private static UserService createUserService() {
     UserRepository userRepository = new UserRepositoryImpl();
-    return new UserServiceImpl(userRepository);
+    return new UserService(userRepository);
   }
 
   private static EventService createEventService() {
     EventRepository eventRepository = new EventRepositoryImpl();
-    return new EventServiceImpl(eventRepository);
+    return new EventService(eventRepository);
   }
 
   private void getFileById(
@@ -172,57 +181,6 @@ public class FileController extends HttpServlet {
       return Integer.parseInt(pathParts[1]);
     } else {
       throw new NumberFormatException("Invalid path format");
-    }
-  }
-
-  private void uploadFile(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
-    try {
-      Integer userId = Integer.parseInt(request.getHeader("user_id"));
-      User user = userService.getById(userId);
-
-      if (user == null) {
-        throw new UserNotFoundException(userId);
-      }
-
-      // чтение файла из запроса
-      Part filePart = request.getPart("file");
-      // Получаем имя файла из загруженной части запроса и извлекаем только имя файла без пути
-      String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-      // Читаем данные файла в массив байтов
-      byte[] fileData = filePart.getInputStream().readAllBytes();
-      
-      // создание директории и сохранение файла на сервере
-      String uploadDir = "uploads/";
-      Files.createDirectories(Paths.get(uploadDir)); // создайте директорию, если ее нет
-      String filePath = uploadDir + fileName;
-      Files.write(Paths.get(filePath), fileData);
-      
-      File file = new File();
-      file.setName(fileName);
-      file.setFilePath(filePath);
-      file = fileService.save(file);
-
-      Event event = new Event();
-      event.setUser(user);
-      event.setFile(file);
-      eventService.save(event);
-      
-      FileDTO fileDTO = fileMapper.fileToFileDTO(file);
-      response.setStatus(HttpServletResponse.SC_CREATED);
-      writeObjectToJson(response, fileDTO);
-    } catch (NumberFormatException e) {
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      writeObjectToJson(response, Map.of("error", "Invalid user ID format"));
-    } catch (UserNotFoundException e) {
-      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-      writeObjectToJson(response, Map.of("error", e.getMessage()));
-    } catch (IOException e) {
-      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      writeObjectToJson(response, Map.of("error", "Failed to upload file"));
-    } catch (ControllerException e) {
-      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      writeObjectToJson(response, Map.of("error", "Internal server error"));
     }
   }
 }

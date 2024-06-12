@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.elnar.crudapp.entity.File;
 import org.elnar.crudapp.repository.FileRepository;
-import org.elnar.crudapp.service.impl.FileServiceImpl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,12 +18,16 @@ import org.mockito.Mockito;
 public class FileServiceTests {
   private static FileRepository fileRepository;
   private static FileService fileService;
+  private static UserService userService;
+  private static EventService eventService;
   private static File testFile;
 
   @BeforeAll
   static void setUp() {
     fileRepository = Mockito.mock(FileRepository.class);
-    fileService = new FileServiceImpl(fileRepository);
+    userService = Mockito.mock(UserService.class);
+    eventService = Mockito.mock(EventService.class);
+    fileService = new FileService(fileRepository, userService, eventService);
 
     testFile = File.builder().id(1).name("Test name").filePath("Test file path").build();
   }

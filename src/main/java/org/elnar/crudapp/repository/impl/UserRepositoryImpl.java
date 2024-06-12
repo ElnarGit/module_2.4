@@ -58,10 +58,10 @@ public class UserRepositoryImpl implements UserRepository {
   public User update(User user) {
     try (Session session = openSession()) {
       session.beginTransaction();
-  
+
       User updateUser = getById(user.getId());
-  
-      if(updateUser == null){
+
+      if (updateUser == null) {
         throw new UserNotFoundException(user.getId());
       }
 

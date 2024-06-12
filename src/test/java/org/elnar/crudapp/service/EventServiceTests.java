@@ -12,7 +12,6 @@ import org.elnar.crudapp.entity.Event;
 import org.elnar.crudapp.entity.File;
 import org.elnar.crudapp.entity.User;
 import org.elnar.crudapp.repository.EventRepository;
-import org.elnar.crudapp.service.impl.EventServiceImpl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,7 @@ public class EventServiceTests {
   @BeforeAll
   static void setUp() {
     eventRepository = Mockito.mock(EventRepository.class);
-    eventService = new EventServiceImpl(eventRepository);
+    eventService = new EventService(eventRepository);
 
     testUser = User.builder().id(1).build();
 
