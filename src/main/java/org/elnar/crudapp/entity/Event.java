@@ -6,6 +6,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@NamedEntityGraph(
+        name = "Event.userAndFile",
+        attributeNodes = {
+                @NamedAttributeNode("user"),
+                @NamedAttributeNode("file")
+        }
+)
 @Entity
 @Table(name = "events")
 @Data
